@@ -1,0 +1,7 @@
+__pycache__
+config.py
+*.db
+*.sqlite
+*.sqlite3
+old_schema.sql
+.venv

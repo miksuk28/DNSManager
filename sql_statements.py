@@ -1,0 +1,1 @@
+GET_ALL_HOSTS='SELECT * FROM hosts'
