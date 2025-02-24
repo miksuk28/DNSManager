@@ -152,9 +152,12 @@ class Manager(DatabaseConnection):
 
     def add_host(self, hostname, domain, address, managed_dhcp, mac_address=None, dhcp_scope=None, overwrite=False, comments=""):     
         domain_id = self._get_domain_id(domain)
-        dhcp_scope_id = self._get_dhcp_scope_id(dhcp_scope)
+        dhcp_scope_id = None
+        if dhcp_scope is not None:
+            dhcp_scope_id = self._get_dhcp_scope_id(dhcp_scope)
 
         with self.cur() as cur:
+            # Add to database
             cur.execute(sql.ADD_HOST, {
                 "hostname":     hostname,
                 "domainId":     domain_id,
@@ -163,6 +166,7 @@ class Manager(DatabaseConnection):
                 "dhcpScopeId":  dhcp_scope_id,
                 "macAddress":   mac_address
             })
+            # Add DNS record
             r = self._request(
                 "/zones/records/add",
                 params={
@@ -174,7 +178,7 @@ class Manager(DatabaseConnection):
                     "comments": self.comment
                 }
             )
-
+            # Add DHCP reservation if applicable
             if managed_dhcp:
                 self.add_static_dhcp_lease(
                     scope=dhcp_scope,
