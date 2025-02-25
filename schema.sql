@@ -3,6 +3,7 @@ CREATE TABLE hosts (
     hostname            TEXT        NOT NULL UNIQUE,
     domainId            INTEGER     NOT NULL,
     ipAddress           TEXT(15)    NOT NULL UNIQUE,
+    ipAddressInt        INTEGER     NOT NULL,
     managedDhcp         BOOLEAN     NOT NULL,
     dhcpScopeId         INTEGER,
     macAddress          TEXT(17)    UNIQUE,

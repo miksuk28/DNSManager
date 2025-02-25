@@ -1,6 +1,7 @@
 import requests
 import config
 import sql_statements as sql
+import ipaddress
 from db_manager import DatabaseConnection
 
 class TechnitiumException(Exception):
@@ -150,11 +151,26 @@ class Manager(DatabaseConnection):
             return dhcp_scope_id[0]
 
 
-    def add_host(self, hostname, domain, address, managed_dhcp, mac_address=None, dhcp_scope=None, overwrite=False, comments=""):     
+    # Get all info about host
+    def get_host_info(self, host_id):
+        with self.cur() as cur:
+            cur.execute(sql.GET_HOST_INFO, (host_id,))
+            host = cur.fetchone()
+
+            if not host:
+                raise ManagerException("error", f"Host with id {host_id} does not exist")
+
+            return dict(host)
+
+
+    def add_host(self, hostname, domain, managed_dhcp, address=None, mac_address=None, dhcp_scope=None, overwrite=False, comments=""):     
         domain_id = self._get_domain_id(domain)
         dhcp_scope_id = None
         if dhcp_scope is not None:
             dhcp_scope_id = self._get_dhcp_scope_id(dhcp_scope)
+
+        if address is None:
+            address = self._next_available_ip(dhcp_scope_id)
 
         with self.cur() as cur:
             # Add to database
@@ -162,6 +178,7 @@ class Manager(DatabaseConnection):
                 "hostname":     hostname,
                 "domainId":     domain_id,
                 "ipAddress":    address,
+                "ipAddressInt": self._ipv4_str_to_int(address),
                 "managedDhcp":  managed_dhcp,
                 "dhcpScopeId":  dhcp_scope_id,
                 "macAddress":   mac_address
@@ -197,6 +214,31 @@ class Manager(DatabaseConnection):
                 raise ManagerException("error", f"Host with ID {host_id} does not exist")
 
             return host
+
+    def _ipv4_str_to_int(self, ip):
+        return int(ipaddress.IPv4Address(ip))
+
+
+    def _next_available_ip(self, dhcp_scope_id):
+        with self.cur(commit=False) as cur:
+            cur.execute(sql.GET_USED_DHCP_ADDRESSES, (dhcp_scope_id,))
+            ips = cur.fetchall()
+            cur.execute(sql.GET_DHCP_SCOPE, (dhcp_scope_id,))
+            dhcp_scope = cur.fetchone()
+
+            int_ips = []
+            for ip in ips:
+                int_ips.append(ip["ipAddressInt"])
+
+            start_addr = self._ipv4_str_to_int(dhcp_scope["dhcpStartAddress"])
+            end_addr =   self._ipv4_str_to_int(dhcp_scope["dhcpEndAddress"])
+
+            for i in range(start_addr, end_addr+1):
+                if start_addr > end_addr:
+                    raise ManagerException("error", f"Dhcp Scope {dhcp_scope['dhcpScopeName']} is out of addresses")
+
+                if i not in int_ips:
+                    return str(ipaddress.IPv4Address(i))
 
 
 
