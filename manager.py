@@ -188,19 +188,97 @@ class Manager(DatabaseConnection):
                     comments=self.comment
                 )
 
+    def _get_host(self, host_id):
+        with self.cur() as cur:
+            cur.execute(sql.GET_HOST, (host_id,))
+            host = cur.fetchone()
 
-    def add_dns_cname_record(self, domain, target, zone=None):
+            if not host:
+                raise ManagerException("error", f"Host with ID {host_id} does not exist")
+
+            return host
+
+
+
+    def remove_host(self, host_id):
+        host = self._get_host(host_id)
+        # Delete from database
+        with self.cur() as cur:
+            cur.execute(sql.REMOVE_HOST, (host_id,))
+            # Remove DNS record
+            r = self._request(
+                "/zones/records/delete",
+                params={
+                    "domain":       f"{host['hostname']}.{host['domainName']}",
+                    "type":         "A",
+                    "ipAddress":    host["ipAddress"]
+                }
+            )
+
+            if host["managedDhcp"]:
+                r = self._request(
+                    "/dhcp/scopes/removeReservedLease",
+                    params={
+                        "name":             host["dhcpScopeName"],
+                        "hardwareAddress":  host["macAddress"]
+                    }
+                )
+
+
+
+    def _get_full_host_domain(self, host_id):
+        with self.cur() as cur:
+            cur.execute(sql.GET_HOST_DOMAIN, (host_id,))
+            domain = cur.fetchone()
+
+            return domain[0]
+
+
+    def _get_full_service_domain(self, service_id):
+        with self.cur() as cur:
+            cur.execute(sql.GET_SERVICE_DOMAIN, (service_id,))
+            domain = cur.fetchone()
+
+            return domain[0]
+
+
+    def add_service(self, service_name, domain, host_id):
+        domain_id = self._get_domain_id(domain)
+        target_domain = self._get_full_host_domain(host_id)
+        # Add service to database
+        with self.cur() as cur:
+            cur.execute(sql.ADD_SERVICE, {
+                "targetHostId":     host_id,
+                "serviceName":      service_name,
+                "domainId":         domain_id
+            })
+        # Add DNS record
         r = self._request(
             "/zones/records/add",
-             params={
-                "domain": domain,
-                "zone": zone,
-                "type": "CNAME",
-                "cname": target,
-                "overwrite": True,
-                "comments": self.comment
+            params={
+                "domain":       f"{service_name}.{domain}",
+                "type":         "CNAME",
+                "cname":        target_domain,
+                "overwrite":    True,
+                "comments":     self.comment
             }
         )
+
+
+
+    def remove_service(self, service_id):
+        domain = self._get_full_service_domain(service_id)
+        # Delete from database
+        with self.cur() as cur:
+            cur.execute(sql.REMOVE_SERVICE, (service_id,))
+            # Remove DNS record
+            r = self._request(
+                "/zones/records/delete",
+                params={
+                    "domain":       domain,
+                    "type":         "CNAME"
+                }
+            )
 
 
     def remove_dns_record(self, domain, type, target=None, zone=None):
