@@ -22,6 +22,9 @@ GET_HOST='''SELECT h.hostId, hostname, d.domainName, d.domainId, ipAddress, macA
             LEFT JOIN domains d ON h.domainId=d.domainId
             LEFT JOIN dhcpScopes s ON h.dhcpScopeId=s.dhcpScopeId
             WHERE h.hostId=?'''
+GET_HOSTS='''SELECT h.hostname || '.' || d.domainName AS hostname, h.hostId, hostname, d.domainName, d.domainId, ipAddress, macAddress, managedDhcp, h.dhcpScopeId, s.dhcpScopeName FROM hosts h
+            LEFT JOIN domains d ON h.domainId=d.domainId
+            LEFT JOIN dhcpScopes s ON h.dhcpScopeId=s.dhcpScopeId'''
 GET_HOST_INFO='''
 SELECT
     h.hostId,
@@ -45,4 +48,17 @@ SELECT
 FROM hosts
 WHERE dhcpScopeId=?
 ORDER BY ipAddressInt ASC
+'''
+GET_SERVICES='''
+SELECT
+	s.serviceId,
+	s.serviceName || '.' || d.domainName AS domainName,
+	s.targetHostId,
+	h.hostname || '.' || (SELECT domainName FROM domains WHERE domainID=h.domainId) AS target,
+	d.domainName AS baseDomain,
+	d.domainId
+FROM services s
+LEFT JOIN domains d ON s.domainId=d.domainId
+LEFT JOIN hosts h 	ON s.targetHostId=h.hostId
+ORDER BY domainName ASC
 '''

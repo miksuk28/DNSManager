@@ -163,6 +163,22 @@ class Manager(DatabaseConnection):
             return dict(host)
 
 
+    def get_hosts(self):
+        with self.cur(commit=False) as cur:
+            cur.execute(sql.GET_HOSTS)
+            hosts = self.rows_to_dict(cur.fetchall())
+
+            return hosts
+
+
+    def get_services(self):
+        with self.cur(commit=False) as cur:
+            cur.execute(sql.GET_SERVICES)
+            services = self.rows_to_dict(cur.fetchall())
+
+            return services
+
+
     def add_host(self, hostname, domain, managed_dhcp, address=None, mac_address=None, dhcp_scope=None, overwrite=False, comments=""):     
         domain_id = self._get_domain_id(domain)
         dhcp_scope_id = None
