@@ -179,13 +179,32 @@ class Manager(DatabaseConnection):
             return services
 
 
+    def get_services_for_host(self, host_id):
+        with self.cur(commit=False) as cur:
+            cur.execute(sql.GET_SERVICES_FOR_HOST, (host_id,))
+            services = self.rows_to_dict(cur.fetchall())
+
+            if not services:
+                raise ManagerException("error", f"Host with id {host_id} does not exist")
+
+            return services
+
+
+    def get_domains(self):
+        with self.cur(commit=False) as cur:
+            cur.execute(sql.GET_DOMAINS)
+            domains = self.rows_to_dict(cur.fetchall())
+
+            return domains
+
+
     def add_host(self, hostname, domain, managed_dhcp, address=None, mac_address=None, dhcp_scope=None, overwrite=False, comments=""):     
         domain_id = self._get_domain_id(domain)
         dhcp_scope_id = None
         if dhcp_scope is not None:
             dhcp_scope_id = self._get_dhcp_scope_id(dhcp_scope)
 
-        if address is None:
+        if not address:
             address = self._next_available_ip(dhcp_scope_id)
 
         with self.cur() as cur:
@@ -254,6 +273,7 @@ class Manager(DatabaseConnection):
                     raise ManagerException("error", f"Dhcp Scope {dhcp_scope['dhcpScopeName']} is out of addresses")
 
                 if i not in int_ips:
+                    print(f"FOUND ADDRESS NOT IN USE: {i} - {ipaddress.IPv4Address(i)}")
                     return str(ipaddress.IPv4Address(i))
 
 
@@ -300,7 +320,7 @@ class Manager(DatabaseConnection):
             return domain[0]
 
 
-    def add_service(self, service_name, domain, host_id):
+    def add_service(self, service_name, domain, host_id, description=None):
         domain_id = self._get_domain_id(domain)
         target_domain = self._get_full_host_domain(host_id)
         # Add service to database
@@ -308,7 +328,8 @@ class Manager(DatabaseConnection):
             cur.execute(sql.ADD_SERVICE, {
                 "targetHostId":     host_id,
                 "serviceName":      service_name,
-                "domainId":         domain_id
+                "domainId":         domain_id,
+                "description":      description
             })
         # Add DNS record
         r = self._request(
