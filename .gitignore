@@ -5,3 +5,5 @@ config.py
 *.sqlite3
 old_schema.sql
 .venv
+*.db.*
+*.bak
