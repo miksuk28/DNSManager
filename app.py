@@ -70,10 +70,21 @@ def create_service():
     manager.add_service(
         service_name=       request_body["serviceName"],
         domain=             request_body["domain"],
-        host_id=            request_body["hostId"]    
+        host_id=            request_body["hostId"],
+        description=        request_body.get("description") 
     )
 
     return jsonify({"status": "ok", "message": "Service created"}), 201
+
+
+@app.route("/services/<int:service_id>", methods=["DELETE"])
+def delete_service(service_id):
+    manager.remove_service(service_id)
+    
+    return jsonify({
+        "status": "ok",
+        "message": f"Deleted service with id {service_id}"
+    })
 
 
 

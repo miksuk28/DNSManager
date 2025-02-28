@@ -1,7 +1,5 @@
 <template>
   <main class="container">
-    <!--<AddSericeModal :hostId="this.newServiceModalHostId" :open="showAddServiceModal" />-->
-
     <AddHostModal @closeModal="this.closeAddHostModal()" @updateHosts="getHosts()" :open="this.showAddHostModal" />
 
     <HostsTable class="overflow-auto" :hosts="this.hosts"/>
@@ -15,13 +13,12 @@
 <script>
   import HostsTable from '@/components/HostsTable.vue';
   import AddHostModal from "@/components/AddHostModal.vue"
-  import AddSericeModal from "@/components/AddServiceModal.vue"
+  //import AddSericeModal from "@/components/AddServiceModal.vue"
 
   export default {
     components: {
       HostsTable,
-      AddHostModal,
-      AddSericeModal
+      AddHostModal
     },
 
     data() {

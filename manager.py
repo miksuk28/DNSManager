@@ -185,7 +185,7 @@ class Manager(DatabaseConnection):
             services = self.rows_to_dict(cur.fetchall())
 
             if not services:
-                raise ManagerException("error", f"Host with id {host_id} does not exist")
+                return []
 
             return services
 

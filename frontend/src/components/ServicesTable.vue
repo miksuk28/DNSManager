@@ -11,7 +11,7 @@
       <tr v-for="service in services" :key="service.serviceId">
         <td>{{ service.domainName }}</td>
         <td>{{ service.description || '—' }}</td>
-        <td>{{ service.target }}</td>
+        <td><a @click="this.$router.push(`/hosts/${service.targetHostId}`)">{{ service.target }}</a></td>
       </tr>
     </tbody>
   </table>

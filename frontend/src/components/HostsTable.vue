@@ -12,8 +12,8 @@
         </tr>
       </thead>
       <tbody>
-        <tr @click="this.$router.push(`/hosts/${host.hostId}`)" v-for="host in hosts" :key="host.hostId">
-          <td><a>{{ host.hostname }}</a></td>
+        <tr v-for="host in hosts" :key="host.hostId">
+          <td><a @click="this.$router.push(`/hosts/${host.hostId}`)">{{ host.hostname }}</a></td>
           <td>{{ host.ipAddress }}</td>
           <td>{{ host.managedDhcp === 1 ? "Yes" : "No" }}</td>
           <td>{{ host.macAddress || '—'}}</td>
