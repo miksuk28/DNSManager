@@ -18,7 +18,7 @@ def list_hosts():
 
     return jsonify(hosts)
 
-@app.route("/hosts/<host_id>")
+@app.route("/hosts/<int:host_id>")
 def get_host_info(host_id):
     host = manager.get_host_info(host_id)
 
@@ -46,6 +46,15 @@ def create_host():
 
     return jsonify({"status": "ok", "message": "Host created"}), 201
 
+
+@app.route("/hosts/<int:host_id>", methods=["DELETE"])
+def delete_host(host_id):
+    manager.remove_host(host_id)
+
+    return jsonify({
+        "status": "ok",
+        "message": f"Deleted host with id {host_id}"
+    })
 
 @app.route("/domains/list", methods=["GET"])
 def get_domains():

@@ -8,8 +8,8 @@ CREATE TABLE hosts (
     dhcpScopeId         INTEGER,
     macAddress          TEXT(17)    UNIQUE,
 
-    FOREIGN KEY (domainId) REFERENCES domains (domainId),
-    FOREIGN KEY (dhcpScopeId) REFERENCES dhcpScopes (dhcpScopeId)
+    FOREIGN KEY (domainId) REFERENCES domains (domainId) ON DELETE RESTRICT,
+    FOREIGN KEY (dhcpScopeId) REFERENCES dhcpScopes (dhcpScopeId) ON DELETE RESTRICT
 );
 
 
@@ -33,9 +33,10 @@ CREATE TABLE services (
     targetHostId        INTEGER     NOT NULL,
     serviceName         TEXT        NOT NULL,
     domainId            INTEGER     NOT NULL,
+    description         TEXT,
 
     UNIQUE(serviceName, domainId),
-    FOREIGN KEY (targetHostId) REFERENCES hosts (hostId)
+    FOREIGN KEY (targetHostId) REFERENCES hosts (hostId) ON DELETE RESTRICT
 );
 
 

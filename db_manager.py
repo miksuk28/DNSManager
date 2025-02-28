@@ -7,6 +7,8 @@ class DatabaseConnection:
     def __init__(self):
         self._db_file = config.MANAGER_DB_PATH
         self._conn =    sqlite3.connect(self._db_file, check_same_thread=False)
+        # enable primary key constraint, as the default in SQLite is OFF
+        self._conn.execute("PRAGMA foreign_keys=ON")
         self._conn.row_factory = sqlite3.Row
 
 

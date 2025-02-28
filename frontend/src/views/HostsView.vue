@@ -4,7 +4,7 @@
 
     <AddHostModal @closeModal="this.closeAddHostModal()" @updateHosts="getHosts()" :open="this.showAddHostModal" />
 
-    <HostsTable @addServiceModal="openAddServiceModal" class="overflow-auto" :hosts="this.hosts"/>
+    <HostsTable class="overflow-auto" :hosts="this.hosts"/>
     <div class="grid">
       <button @click="openAddHostModal" class="outline">Add host</button>
     </div>
