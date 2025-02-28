@@ -7,3 +7,4 @@ old_schema.sql
 .venv
 *.db.*
 *.bak
+test
