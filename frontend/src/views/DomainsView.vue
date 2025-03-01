@@ -5,7 +5,8 @@
       @updateDomains="this.getDomains()"
       @closeModal="this.showAddDomainModal=false"
     />
-    <DomainsTable :domains="this.domains" />
+    <h4 v-show="this.domains.length === 0">No Domains Defined</h4>
+    <DomainsTable v-show="this.domains.length !== 0" :domains="this.domains" />
 
     <div class="grid">
       <button @click="this.showAddDomainModal=true" class="outline">Add Domain</button>
