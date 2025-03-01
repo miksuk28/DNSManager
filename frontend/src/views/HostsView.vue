@@ -1,5 +1,7 @@
 <template>
   <main class="container">
+    <h3>Hosts</h3>
+    <hr>
     <AddHostModal @closeModal="this.closeAddHostModal()" @updateHosts="getHosts()" :open="this.showAddHostModal" />
     
     <HostsTable v-show="this.hosts.length !== 0" class="overflow-auto" :hosts="this.hosts"/>

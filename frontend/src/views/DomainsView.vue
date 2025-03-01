@@ -1,5 +1,7 @@
 <template>
   <main class="container">
+    <h3>Domains</h3>
+    <hr>
     <AddDomainModal 
       :open="this.showAddDomainModal"
       @updateDomains="this.getDomains()"
