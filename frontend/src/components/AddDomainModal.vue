@@ -23,7 +23,7 @@
       </form>
       <div @click="addDomain()" class="grid">
         <button >Add Domain</button>
-      </div>
+      </div><
     </article>
   </dialog>
 </template>
@@ -64,6 +64,7 @@
               this.createErrorModal(data.error, data.exception, response.status)
             } else {
               console.log("OK")
+              this.newDomain = null
               this.$emit("updateDomains")
               this.$emit("closeModal")
             }
