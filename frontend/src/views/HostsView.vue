@@ -1,8 +1,9 @@
 <template>
   <main class="container">
     <AddHostModal @closeModal="this.closeAddHostModal()" @updateHosts="getHosts()" :open="this.showAddHostModal" />
-
-    <HostsTable class="overflow-auto" :hosts="this.hosts"/>
+    
+    <HostsTable v-show="this.hosts.length !== 0" class="overflow-auto" :hosts="this.hosts"/>
+    <h4 v-show="this.hosts.length === 0">No Hosts Defined</h4>
     <div class="grid">
       <button @click="openAddHostModal" class="outline">Add host</button>
     </div>

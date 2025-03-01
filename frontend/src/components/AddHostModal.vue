@@ -133,7 +133,7 @@
             hostname:       this.newHost.hostname,
             domain:         this.newHost.domain,
             managedDhcp:    this.newHost.isManaged,
-            ipAddress:      this.newHost.ipAddress,
+            ipAddress:      this.newHost.isManaged ? null : this.newHost.ipAddress,
             macAddress:     this.newHost.macAddress,
             dhcpScope:      this.newHost.dhcpScope
           })

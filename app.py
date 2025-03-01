@@ -1,5 +1,7 @@
 from flask import Flask, jsonify, request
 from manager import ManagerException
+from waitress import serve
+from datetime import datetime
 import manager
 import config
 
@@ -61,6 +63,18 @@ def get_domains():
     domains = manager.get_domains()
 
     return jsonify(domains)
+
+
+@app.route("/domains", methods=["POST"])
+def create_domain():
+    request_body = request.get_json()
+
+    manager.add_domain(request_body["domainName"])
+
+    return jsonify({
+        "status":       "ok",
+        "message":      f"Domain {request_body['domainName']} created"
+    }), 201
 
 
 @app.route("/services", methods=["POST"])
@@ -126,8 +140,17 @@ def exception_handler(error):
 def add_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "*"
+
+    # Waitress specific logging
+    if not config.MANAGER_USE_DEBUG_SERVER:
+        timestamp = datetime.now().strftime('[%Y-%b-%d %H:%M]')
+        print(f"{timestamp} {request.remote_addr} {request.method} {request.scheme} {request.full_path} {response.status}")
+
     return response
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=8000, debug=True)
+    if config.MANAGER_USE_DEBUG_SERVER:
+        app.run(host="127.0.0.1", port=8000, debug=True)
+    else:
+        serve(app, host="127.0.0.1", port=8000)

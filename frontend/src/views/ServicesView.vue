@@ -1,6 +1,7 @@
 <template>
   <main class="container">
-    <ServicesTable :services="this.services" />
+    <h4 v-show="this.services.length === 0">No Services Defined</h4>
+    <ServicesTable v-show="this.services.length !== 0" :services="this.services" />
   </main>
 </template>
 

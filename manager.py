@@ -2,6 +2,7 @@ import requests
 import config
 import sql_statements as sql
 import ipaddress
+from sqlite3 import IntegrityError
 from db_manager import DatabaseConnection
 
 class TechnitiumException(Exception):
@@ -190,12 +191,35 @@ class Manager(DatabaseConnection):
             return services
 
 
+    def add_domain(self, domain):
+        with self.cur(commit=True) as cur:
+            cur.execute(sql.ADD_DOMAIN, (domain,))
+
+
     def get_domains(self):
         with self.cur(commit=False) as cur:
             cur.execute(sql.GET_DOMAINS)
             domains = self.rows_to_dict(cur.fetchall())
 
             return domains
+
+
+    def _check_if_address_in_scope(self, address, dhcp_scope):
+        with self.cur(commit=False) as cur:
+            cur.execute(sql.GET_DHCP_SCOPE_BY_NAME, (dhcp_scope,))
+            scope = cur.fetchone()
+
+            addr =     self._ipv4_str_to_int(address)
+            min_addr = self._ipv4_str_to_int(scope["dhcpStartAddress"])
+            max_addr = self._ipv4_str_to_int(scope["dhcpEndAddress"])
+
+            if addr >= min_addr and addr <= max_addr:
+                return
+
+            raise ManagerException("error", f"Address {address} is out of {dhcp_scope} range")
+
+
+
 
 
     def add_host(self, hostname, domain, managed_dhcp, address=None, mac_address=None, dhcp_scope=None, overwrite=False, comments=""):     
@@ -206,6 +230,9 @@ class Manager(DatabaseConnection):
 
         if not address:
             address = self._next_available_ip(dhcp_scope_id)
+
+        if address:
+            self._check_if_address_in_scope(address, dhcp_scope)
 
         with self.cur() as cur:
             # Add to database
@@ -282,7 +309,11 @@ class Manager(DatabaseConnection):
         host = self._get_host(host_id)
         # Delete from database
         with self.cur() as cur:
-            cur.execute(sql.REMOVE_HOST, (host_id,))
+            try:
+                cur.execute(sql.REMOVE_HOST, (host_id,))
+            except IntegrityError:
+                raise ManagerException("error", "Host cannot be removed because there are services depending on it")
+            
             # Remove DNS record
             r = self._request(
                 "/zones/records/delete",

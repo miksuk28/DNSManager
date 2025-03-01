@@ -1,5 +1,6 @@
 GET_DOMAIN_BY_ID="SELECT domainName FROM domains WHERE domainId=?"
 GET_DOMAIN_ID="SELECT domainId FROM domains WHERE domainName=?"
+ADD_DOMAIN="INSERT INTO domains (domainName) VALUES (?)"
 GET_DOMAINS="SELECT domainId, domainName FROM domains"
 ADD_HOST='''INSERT INTO hosts (hostname, domainId, ipAddress, ipAddressInt, managedDhcp, dhcpScopeId, macAddress)
             VALUES (:hostname, :domainId, :ipAddress, :ipAddressInt, :managedDhcp, :dhcpScopeId, :macAddress)'''
@@ -8,6 +9,11 @@ GET_DHCP_SCOPE='''
 SELECT *
 FROM dhcpScopes
 WHERE dhcpScopeId=?
+'''
+GET_DHCP_SCOPE_BY_NAME='''
+SELECT *
+FROM dhcpScopes
+WHERE dhcpScopeName=?
 '''
 ADD_SERVICE='''INSERT INTO services (targetHostId, serviceName, domainId, description)
                VALUES (:targetHostId, :serviceName, :domainId, :description)'''

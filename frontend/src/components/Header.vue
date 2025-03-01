@@ -7,6 +7,7 @@
       <ul>
         <RouterLink to="/services"><li><a class="contrast">Services</a></li></RouterLink>
         <RouterLink to="/hosts"><li><a class="contrast">Hosts</a></li></RouterLink>
+        <RouterLink to="/domains"><li><a class="contrast">Domains</a></li></RouterLink>
       </ul>
     </nav>
   </main>
