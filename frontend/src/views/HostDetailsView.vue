@@ -66,7 +66,7 @@
         </tbody>
       </table>
       <div class="grid">
-        <button @click="this.showDeleteHostModal = true" class="outline secondary">Delete host</button>
+        <button :disabled="this.services.length !== 0" @click="this.showDeleteHostModal = true" class="outline secondary">Delete host</button>
       </div>
     </div>
 
