@@ -23,7 +23,7 @@
       </form>
       <div @click="addDomain()" class="grid">
         <button >Add Domain</button>
-      </div><
+      </div>
     </article>
   </dialog>
 </template>
