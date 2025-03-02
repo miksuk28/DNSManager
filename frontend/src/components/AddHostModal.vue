@@ -35,19 +35,19 @@
 
           <label>
             <input v-model="this.newHost.isManaged" name="isManaged" type="checkbox" role="switch" />
-            Managed address
+            Use next available address in range
           </label>
 
-          <label v-if="this.newHost.isManaged">
+          <label>
             MAC Address
             <input v-model="this.newHost.macAddress" required type="text" name="macAddress" placeholder="FF:FF:FF:FF:FF:FF">
-            <small>Static DHCP reservation with the next available IP will be made within the desired DHCP scope</small>
+            <small>MAC Address used for static DHCP reservation</small>
           </label>
 
           <label v-if="!this.newHost.isManaged">
             IP Address
             <input v-model="this.newHost.ipAddress" required type="text" name="ipAddress" placeholder="X.X.X.X">
-            <small>Unmanaged hosts will be added to database to avoid address collision, but no DHCP lease will be created</small>
+            <small>Manually set an address</small>
           </label>
 
           <label>
@@ -132,7 +132,7 @@
           body: JSON.stringify({
             hostname:       this.newHost.hostname,
             domain:         this.newHost.domain,
-            managedDhcp:    this.newHost.isManaged,
+            managedDhcp:    true,
             ipAddress:      this.newHost.isManaged ? null : this.newHost.ipAddress,
             macAddress:     this.newHost.macAddress,
             dhcpScope:      this.newHost.dhcpScope
