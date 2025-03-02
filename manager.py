@@ -408,9 +408,10 @@ class Manager(DatabaseConnection):
         )
 
 
-
-# for testing
-api = Manager(
-    token=config.TECHNITIUM_TOKEN,
-    address=config.TECHNITIUM_ADDRESS
-)
+if __name__ == "__main__":
+    print("'api' object exposed for debugging")
+    # for testing
+    api = Manager(
+        token=config.TECHNITIUM_TOKEN,
+        address=config.TECHNITIUM_ADDRESS
+    )
