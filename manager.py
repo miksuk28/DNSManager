@@ -354,14 +354,6 @@ class Manager(DatabaseConnection):
     def add_service(self, service_name, domain, host_id, description=None):
         domain_id = self._get_domain_id(domain)
         target_domain = self._get_full_host_domain(host_id)
-        # Add service to database
-        with self.cur() as cur:
-            cur.execute(sql.ADD_SERVICE, {
-                "targetHostId":     host_id,
-                "serviceName":      service_name,
-                "domainId":         domain_id,
-                "description":      description
-            })
         # Add DNS record
         r = self._request(
             "/zones/records/add",
@@ -373,6 +365,14 @@ class Manager(DatabaseConnection):
                 "comments":     self.comment
             }
         )
+        # Add service to database
+        with self.cur() as cur:
+            cur.execute(sql.ADD_SERVICE, {
+                "targetHostId":     host_id,
+                "serviceName":      service_name,
+                "domainId":         domain_id,
+                "description":      description
+            })
 
 
 
