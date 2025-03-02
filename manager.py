@@ -196,6 +196,14 @@ class Manager(DatabaseConnection):
             cur.execute(sql.ADD_DOMAIN, (domain,))
 
 
+    def remove_domain(self, domain_id):
+        with self.cur() as cur:
+            try:
+                cur.execute(sql.DELETE_DOMAIN, (domain_id,))
+            except IntegrityError:
+                raise ManagerException("error", f"Cannot delete domain with id {domain_id} because it is in use")
+
+
     def get_domains(self):
         with self.cur(commit=False) as cur:
             cur.execute(sql.GET_DOMAINS)

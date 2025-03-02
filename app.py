@@ -77,6 +77,16 @@ def create_domain():
     }), 201
 
 
+@app.route("/domains/<int:domain_id>", methods=["DELETE"])
+def delete_domain(domain_id):
+    manager.remove_domain(domain_id)
+
+    return jsonify({
+        "status":       "ok",
+        "message":      f"Domain with id {domain_id} deleted"
+    })
+
+
 @app.route("/services", methods=["POST"])
 def create_service():
     request_body = request.get_json()

@@ -2,6 +2,7 @@ GET_DOMAIN_BY_ID="SELECT domainName FROM domains WHERE domainId=?"
 GET_DOMAIN_ID="SELECT domainId FROM domains WHERE domainName=?"
 ADD_DOMAIN="INSERT INTO domains (domainName) VALUES (?)"
 GET_DOMAINS="SELECT domainId, domainName FROM domains"
+DELETE_DOMAIN="DELETE FROM domains WHERE domainId=?"
 ADD_HOST='''INSERT INTO hosts (hostname, domainId, ipAddress, ipAddressInt, managedDhcp, dhcpScopeId, macAddress)
             VALUES (:hostname, :domainId, :ipAddress, :ipAddressInt, :managedDhcp, :dhcpScopeId, :macAddress)'''
 GET_DHCP_SCOPE_ID="SELECT dhcpScopeId FROM dhcpScopes WHERE dhcpScopeName=?"
