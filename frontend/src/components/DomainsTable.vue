@@ -1,7 +1,9 @@
 <template>
   <table class="striped">
     <thead>
-      <th scope="col">Domain</th>
+      <tr>
+        <th scope="col">Domain</th>
+      </tr>
     </thead>
     <tbody>
       <tr v-for="domain in domains" :key="domain.domainId">
