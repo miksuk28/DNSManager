@@ -16,6 +16,10 @@ SELECT *
 FROM dhcpScopes
 WHERE dhcpScopeName=?
 '''
+ADD_DHCP_SCOPE='''
+INSERT INTO dhcpScopes (dhcpScopeName, dhcpStartAddress, dhcpEndAddress, dhcpNetmask)
+VALUES (:dhcpScopeName, :dhcpStartAddress, :dhcpEndAddress, :dhcpNetmask)
+'''
 ADD_SERVICE='''INSERT INTO services (targetHostId, serviceName, domainId, description)
                VALUES (:targetHostId, :serviceName, :domainId, :description)'''
 GET_HOST_DOMAIN='''SELECT hostname || '.' || domainName

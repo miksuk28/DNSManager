@@ -227,7 +227,15 @@ class Manager(DatabaseConnection):
             raise ManagerException("error", f"Address {address} is out of {dhcp_scope} range")
 
 
-
+    def register_dhcp_scope(self, scope_name, dhcp_start_address, dhcp_end_address, dhcp_netmask):
+        '''Adds DHCP scope to database so that it can be picked in web ui. Does not actually create the scope on the servers'''
+        with self.cur(commit=True) as cur:
+            cur.execute(sql.ADD_DHCP_SCOPE, {
+                "dhcpScopeName":            scope_name,
+                "dhcpStartAddress":         dhcp_start_address,
+                "dhcpEndAddress":           dhcp_end_address,
+                "dhcpNetmask":              dhcp_netmask
+            })
 
 
     def add_host(self, hostname, domain, managed_dhcp, address=None, mac_address=None, dhcp_scope=None, overwrite=False, comments=""):     
