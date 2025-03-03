@@ -2,7 +2,7 @@
   <main class="container">
     <nav>
       <ul>
-        <li><strong>Manager</strong></li>
+        <li><strong>{{ this.title }}</strong></li>
       </ul>
       <ul>
         <RouterLink to="/services"><li><a class="contrast">Services</a></li></RouterLink>
@@ -14,4 +14,21 @@
 </template>
 
 <script>
+  export default {
+    data() {
+      return {
+        title: null
+      }
+    },
+    methods: {
+      async getHeader() {
+        const response = await fetch("/api/header")
+        this.title = await response.text()
+        console.log(`Header is: ${this.title}`)
+      }
+    },
+    created() {
+      this.getHeader()
+    }
+  }
 </script>

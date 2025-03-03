@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, make_response
 from manager import ManagerException
 from waitress import serve
 from datetime import datetime
@@ -12,6 +12,14 @@ manager = manager.Manager(
     token=config.TECHNITIUM_TOKEN,
     address=config.TECHNITIUM_ADDRESS
 )
+
+
+@app.route("/header", methods=["GET"])
+def get_title():
+    try:
+        return make_response(config.MANAGER_HEADER_TITLE)
+    except:
+        return make_response("Manager")
 
 
 @app.route("/hosts/list", methods=["GET"])
