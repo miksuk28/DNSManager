@@ -51,7 +51,7 @@ SELECT
     dc.dhcpNetmask
 FROM hosts h
 LEFT JOIN domains d ON h.domainId=d.domainId
-LEFT JOIN dhcpScopes dc ON dc.dhcpScopeId=dc.dhcpScopeId
+LEFT JOIN dhcpScopes dc ON h.dhcpScopeId=dc.dhcpScopeId
 WHERE h.hostId=?
 '''
 GET_USED_DHCP_ADDRESSES='''
