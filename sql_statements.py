@@ -37,7 +37,7 @@ GET_HOST='''SELECT h.hostId, hostname, d.domainName, d.domainId, ipAddress, UPPE
 GET_HOSTS='''SELECT h.hostname || '.' || d.domainName AS hostname, h.hostId, hostname, d.domainName, d.domainId, ipAddress, UPPER(macAddress) AS macAddress, managedDhcp, h.dhcpScopeId, s.dhcpScopeName FROM hosts h
             LEFT JOIN domains d ON h.domainId=d.domainId
             LEFT JOIN dhcpScopes s ON h.dhcpScopeId=s.dhcpScopeId
-            ORDER BY ipAddressInt ASC'''
+            ORDER BY hostname ASC'''
 GET_HOST_INFO='''
 SELECT
     h.hostId,
