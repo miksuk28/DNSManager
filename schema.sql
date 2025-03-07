@@ -36,6 +36,7 @@ CREATE TABLE services (
     description         TEXT,
 
     UNIQUE(serviceName, domainId),
+    FOREIGN KEY (domainId)     REFERENCES domains (domainId) ON DELETE RESTRICT,
     FOREIGN KEY (targetHostId) REFERENCES hosts (hostId) ON DELETE RESTRICT
 );
 
