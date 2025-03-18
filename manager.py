@@ -2,6 +2,8 @@ import requests
 import config
 import sql_statements as sql
 import ipaddress
+import subprocess
+import os
 from sqlite3 import IntegrityError
 from db_manager import DatabaseConnection
 
@@ -16,7 +18,7 @@ class TechnitiumException(Exception):
 class ManagerException(Exception):
     def __init__(self, status, error):
         # Do logging stuff here
-        print("Inside ManagerException wooo")
+        # print("Inside ManagerException")
         super().__init__(error)
 
 
@@ -422,6 +424,40 @@ class Manager(DatabaseConnection):
             "/zones/records/delete",
             params=params
         )
+
+
+    def ping_host(self, host_id):
+        count =     str(config.MANAGER_PING_COUNT)
+        timeout =   str(config.MANAGER_PING_TIMEOUT)
+        address = self.get_host_info(host_id)["hostname"]
+        
+        return_code = subprocess.call(
+            ["ping", address, "-c", count, "-W", timeout],
+            stdout=open(os.devnull, "w"),
+            stderr=open(os.devnull, "w")
+        )
+
+        if return_code == 0:
+            print(f"Successfully pinged {address}")
+            return {
+                "host":     address,
+                "status":   "OK"
+            }
+        elif return_code == 1:
+            #raise ManagerException("error", f"Timeout trying to ping {address}")
+            return {
+                "host":     address,
+                "status":   "TIMEOUT"
+            }
+        elif return_code == 2:
+            #raise ManagerException("error", f"Cannot resolve hostname {address}")
+            return {
+                "host":     address,
+                "status":   "DNS ERROR"
+            }
+
+        raise ManagerException("error", f"Unknown error attempting to ping {address}")
+        
 
 
 if __name__ == "__main__":

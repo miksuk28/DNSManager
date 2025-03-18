@@ -66,6 +66,12 @@ def delete_host(host_id):
         "message": f"Deleted host with id {host_id}"
     })
 
+
+@app.route("/hosts/<int:host_id>/ping", methods=["GET"])
+def ping_host(host_id):
+    return jsonify(manager.ping_host(host_id))
+
+
 @app.route("/domains/list", methods=["GET"])
 def get_domains():
     domains = manager.get_domains()
