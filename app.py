@@ -2,22 +2,26 @@ from flask import Flask, jsonify, request, make_response
 from manager import ManagerException
 from waitress import serve
 from datetime import datetime
+import configparser
 import manager
-import config
+
+
+config = configparser.ConfigParser()
+config.read("manager.conf")
 
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 manager = manager.Manager(
-    token=config.TECHNITIUM_TOKEN,
-    address=config.TECHNITIUM_ADDRESS
+    token=config["TECHNITIUM"]["TOKEN"],
+    address=config["TECHNITIUM"]["HOST"]
 )
 
 
 @app.route("/header", methods=["GET"])
 def get_title():
     try:
-        return make_response(config.MANAGER_HEADER_TITLE)
+        return make_response(config["MANAGER"]["HEADER_TITLE"])
     except:
         return make_response("Manager")
 
@@ -166,7 +170,7 @@ def add_headers(response):
     response.headers["Access-Control-Allow-Headers"] = "*"
 
     # Waitress specific logging
-    if not config.MANAGER_USE_DEBUG_SERVER:
+    if not config.getboolean("MANAGER", "USE_DEBUG_SERVER", fallback=False):
         timestamp = datetime.now().strftime('[%Y-%b-%d %H:%M]')
         print(f"{timestamp} {request.remote_addr} {request.method} {request.scheme} {request.full_path} {response.status}")
 
@@ -174,7 +178,14 @@ def add_headers(response):
 
 
 if __name__ == "__main__":
-    if config.MANAGER_USE_DEBUG_SERVER:
-        app.run(host="127.0.0.1", port=8000, debug=True)
+    if config.getboolean("MANAGER", "USE_DEBUG_SERVER", fallback=False):
+        app.run(host=config["MANAGER"]["BIND_HOST"],
+                port=config["MANAGER"]["BIND_PORT"],
+                debug=config.getboolean("MANAGER", "USE_DEBUG_SERVER", fallback=False))
     else:
-        serve(app, host="127.0.0.1", port=8000)
+        serve(
+            app,
+            host=config["MANAGER"]["BIND_HOST"],
+            port=config["MANAGER"]["BIND_PORT"],
+            threads=config.getint("MANAGER", "WAITRESS_THREADS", fallback=100)
+        )

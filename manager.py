@@ -1,11 +1,14 @@
 import requests
-import config
 import sql_statements as sql
 import ipaddress
 import subprocess
 import os
+import configparser
 from sqlite3 import IntegrityError
 from db_manager import DatabaseConnection
+
+config = configparser.ConfigParser()
+config.read("manager.conf")
 
 class TechnitiumException(Exception):
     def __init__(self, status, error, code=500, stacktrace=None):
@@ -30,7 +33,7 @@ class Manager(DatabaseConnection):
     def __init__(self, token, address, port="5380", schema="http"):
         super().__init__()
         self.URL = f"{schema}://{address}:{port}/api"
-        self.comment = config.MANAGER_DEFAULT_COMMENT
+        self.comment = config.get("MANAGER", "DEFAULT_COMMENT", fallback="Created by Manager")
         self.token = token
 
     
@@ -431,8 +434,8 @@ class Manager(DatabaseConnection):
 
 
     def ping_host(self, host_id):
-        count =     str(config.MANAGER_PING_COUNT)
-        timeout =   str(config.MANAGER_PING_TIMEOUT)
+        count =     str(config.getint("MANAGER", "PING_COUNT", fallback=1))
+        timeout =   str(config.getint("MANAGER", "PING_TIMEOUT", fallback=2))
         address = self.get_host_info(host_id)["hostname"]
         
         return_code = subprocess.call(
@@ -468,6 +471,6 @@ if __name__ == "__main__":
     print("'api' object exposed for debugging")
     # for testing
     api = Manager(
-        token=config.TECHNITIUM_TOKEN,
-        address=config.TECHNITIUM_ADDRESS
+        token=config["TECHNITIUM"]["TOKEN"],
+        address=config["TECHNITIUM"]["HOST"]
     )
