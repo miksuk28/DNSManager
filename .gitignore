@@ -13,3 +13,4 @@ frontend/public/custom
 frontend/public/custom/*
 new_frontend/
 ManagerFrontend
+*.conf
