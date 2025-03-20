@@ -40,9 +40,9 @@ def create_host():
     request_body = request.get_json()
 
     if not bool(request_body["managedDhcp"]) and not request_body.get("ipAddress"):
-        raise ManagerException("error", "Bad request. ipAddress is required when managedDhcp is false")
+        raise ManagerException("error", "Bad request. ipAddress is required when managedDhcp is false", code=400)
     elif request_body["managedDhcp"] and not request_body.get("macAddress"):
-        raise ManagerException("error", "Bad request. macAddress is required when managedDhcp is true")
+        raise ManagerException("error", "Bad request. macAddress is required when managedDhcp is true", code=400)
 
     manager.add_host(
         hostname=       request_body["hostname"],

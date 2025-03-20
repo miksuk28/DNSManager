@@ -8,17 +8,21 @@ from sqlite3 import IntegrityError
 from db_manager import DatabaseConnection
 
 class TechnitiumException(Exception):
-    def __init__(self, status, error, stacktrace=None):
+    def __init__(self, status, error, code=500, stacktrace=None):
+        self.status =   status
+        self.error =    error
+        self.code =     code
         # Do logging stuff here
-        print("STACKTRACE WOULD BE HERE")
         # Call the base class constructor with the parameters it needs
-        super().__init__(error)
+        super().__init__(error, code)
 
 
 class ManagerException(Exception):
-    def __init__(self, status, error):
+    def __init__(self, status, error, code=500):
+        self.status =   status
+        self.error =    error
+        self.code =     code
         # Do logging stuff here
-        # print("Inside ManagerException")
         super().__init__(error)
 
 
@@ -113,7 +117,7 @@ class Manager(DatabaseConnection):
         elif type.upper() == "CNAME":
             params = params | {"cname": target}
         else:
-            raise TechnitiumException("error", "Only A and CNAME records are supported")
+            raise TechnitiumException("error", "Only A and CNAME records are supported", code=400)
 
         r = self._request(
             "/zones/records/add",
@@ -127,7 +131,7 @@ class Manager(DatabaseConnection):
             domain = cur.fetchone()
 
             if not domain:
-                raise ManagerException("error", f"Domain with id {domain_id} does not exist")
+                raise ManagerException("error", f"Domain with id {domain_id} does not exist", code=404)
 
             return domain[0]
 
@@ -138,7 +142,7 @@ class Manager(DatabaseConnection):
             domain_id = cur.fetchone()
 
             if not domain:
-                raise ManagerException("error", f"Domain {domain} does not exist")
+                raise ManagerException("error", f"Domain {domain} does not exist", code=404)
 
             return domain_id[0]
 
@@ -149,7 +153,7 @@ class Manager(DatabaseConnection):
             dhcp_scope_id = cur.fetchone()
 
             if not dhcp_scope_id:
-                raise ManagerException("error", f"DHCP Scope {dhcp_scope} does not exist")
+                raise ManagerException("error", f"DHCP Scope {dhcp_scope} does not exist", code=404)
 
             return dhcp_scope_id[0]
 
@@ -161,7 +165,7 @@ class Manager(DatabaseConnection):
             host = cur.fetchone()
 
             if not host:
-                raise ManagerException("error", f"Host with id {host_id} does not exist")
+                raise ManagerException("error", f"Host with id {host_id} does not exist", code=404)
 
             return dict(host)
 
@@ -203,7 +207,7 @@ class Manager(DatabaseConnection):
             try:
                 cur.execute(sql.DELETE_DOMAIN, (domain_id,))
             except IntegrityError:
-                raise ManagerException("error", f"Cannot delete domain with id {domain_id} because it is in use")
+                raise ManagerException("error", f"Cannot delete domain with id {domain_id} because it is in use", code=409)
 
 
     def get_domains(self):
@@ -226,7 +230,7 @@ class Manager(DatabaseConnection):
             if addr >= min_addr and addr <= max_addr:
                 return
 
-            raise ManagerException("error", f"Address {address} is out of {dhcp_scope} range")
+            raise ManagerException("error", f"Address {address} is out of {dhcp_scope} range", code=400)
 
 
     def register_dhcp_scope(self, scope_name, dhcp_start_address, dhcp_end_address, dhcp_netmask):
@@ -291,7 +295,7 @@ class Manager(DatabaseConnection):
             host = cur.fetchone()
 
             if not host:
-                raise ManagerException("error", f"Host with ID {host_id} does not exist")
+                raise ManagerException("error", f"Host with ID {host_id} does not exist", code=404)
 
             return host
 
@@ -315,7 +319,7 @@ class Manager(DatabaseConnection):
 
             for i in range(start_addr, end_addr+1):
                 if start_addr > end_addr:
-                    raise ManagerException("error", f"Dhcp Scope {dhcp_scope['dhcpScopeName']} is out of addresses")
+                    raise ManagerException("error", f"Dhcp Scope {dhcp_scope['dhcpScopeName']} is out of addresses", code=409)
 
                 if i not in int_ips:
                     print(f"FOUND ADDRESS NOT IN USE: {i} - {ipaddress.IPv4Address(i)}")
@@ -330,7 +334,7 @@ class Manager(DatabaseConnection):
             try:
                 cur.execute(sql.REMOVE_HOST, (host_id,))
             except IntegrityError:
-                raise ManagerException("error", "Host cannot be removed because there are services depending on it")
+                raise ManagerException("error", "Host cannot be removed because there are services depending on it", code=409)
             
             # Remove DNS record
             r = self._request(
