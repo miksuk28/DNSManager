@@ -12,7 +12,7 @@ update.sh
 frontend/public/custom
 frontend/public/custom/*
 new_frontend/
-ManagerFrontend
+#ManagerFrontend
 *.conf
 *config.py
 !manager.example.conf
