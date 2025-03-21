@@ -1,28 +1,9 @@
 <template>
-  <v-dialog v-model="error.showDialog" width="auto">
-    <v-card
-      
-      prepend-icon="mdi-alert-circle"
-      title="An Error Occured"
-    >
-      <v-card-text>
-        <p>Manager returned the following exception with the code: {{ error.status }}</p>
-      </v-card-text>
-
-      <v-card-text>
-        <code>{{ error.exception }}: {{ error.response }}</code>
-      </v-card-text>
-
-      <template v-slot:actions>
-        <v-btn
-          class="ms-auto"
-          text="Ok"
-          @click="error.showDialog = false"
-        ></v-btn>
-      </template>
-    </v-card>
-  </v-dialog>
-
+  <ErrorDialog
+    :error="this.error"
+    v-model="this.error.showDialog"
+    @close="this.error.showDialog = false"
+  />
 
   <v-card title="New Host">
   <v-card-text>
@@ -48,7 +29,10 @@
 </template>
 
 <script>
+  import ErrorDialog from './ErrorDialog.vue';
+
   export default {
+    components: { ErrorDialog },
     props: [],
     data() {
       return {

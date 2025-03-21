@@ -1,6 +1,6 @@
 <template>
   <v-app-bar title="Buppy DNS Manager"></v-app-bar>
-
+  
   <v-navigation-drawer>
     <v-list nav>
       <v-list-item @click="this.$router.push('/services')" title="Services" link></v-list-item>
