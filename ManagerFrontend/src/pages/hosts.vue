@@ -47,15 +47,6 @@
                   <v-icon color="medium-emphasis" icon="mdi-web" size="x-small" start></v-icon>
                   Services
                 </v-toolbar-title>
-                <!--<v-spacer></v-spacer>
-                <v-btn
-                  class="me-2"
-                  prepend-icon="mdi-plus"
-                  rounded="lg"
-                  text="Add Service"
-                  border
-                  @click="this.tab = 'addService'"
-                ></v-btn>-->
               </v-toolbar>
             </template>
           </v-data-table>
@@ -82,7 +73,7 @@
                   rounded="lg"
                   text="Add Domain"
                   border
-                  @click="this.tab = 'addService'"
+                  @click="this.tab = 'addDomain'"
                 ></v-btn>
               </v-toolbar>
             </template>
@@ -101,6 +92,9 @@
           <HostDetails :host="this.detailedHost" :services="this.detailedHostServices" />
         </v-tabs-window-item>
 
+        <v-tabs-window-item value="addDomain">
+          <AddDomainForm @domainCreated="this.getDomains(); this.tab = 'domains'" />
+        </v-tabs-window-item>
 
       </v-tabs-window>
     </v-container>
@@ -111,9 +105,10 @@
   import AddHostForm from '@/components/AddHostForm.vue';
   import AddServiceForm from '@/components/AddServiceForm.vue';
   import HostDetails from '@/components/HostDetails.vue';
+  import AddDomainForm from '@/components/AddDomainForm.vue';
 
   export default {
-    components: { AddHostForm, AddServiceForm, HostDetails },
+    components: { AddHostForm, AddServiceForm, HostDetails, AddDomainForm },
     data() {
       return {
         tab: null,
