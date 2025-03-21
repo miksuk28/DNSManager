@@ -15,3 +15,4 @@ new_frontend/
 ManagerFrontend
 *.conf
 *config.py
+!manager.example.conf
