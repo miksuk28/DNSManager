@@ -1,15 +1,19 @@
 <template>
+  <ErrorDialog 
+    :error="this.error"
+    v-model="this.error.showDialog"
+    @close="this.error.showDialog = false"
+  />
+
   <v-card title="New Service">
     <v-card-text>
       <v-sheet class="">
         <v-form @submit.prevent>
-          <v-text-field label="Short Hostname"></v-text-field>                
-          <v-select label="Domain"></v-select>
+          <v-text-field v-model="newService.hostname" label="Short Hostname"></v-text-field>                
+          <v-select v-model="newService.domain" :items="this.domains" label="Domain"></v-select>
           
-          <v-text-field disabled label="Full domain name"></v-text-field>
+          <v-text-field disabled v-model="this.fullNewDomain" label="Full domain name"></v-text-field>
           
-          <v-checkbox label="Use next available IP Address"></v-checkbox>
-
           <v-btn @click="this.createHost()" class="mt-2 bg-blue" type="submit" block>Submit</v-btn>
         </v-form>
       </v-sheet>
@@ -18,10 +22,25 @@
 </template>
 
 <script>
+  import ErrorDialog from './ErrorDialog.vue';
+
   export default {
+    components: { ErrorDialog },
+    props: ["domains"],
     data() {
       return {
-        newService: {}
+        newService: {},
+        error: {}
+      }
+    },
+    methods: {
+
+    },
+    computed: {
+      fullNewDomain() {
+        if (this.newService.hostname && this.newService.domain) {
+          return `${this.newService.hostname}.${this.newService.domain}`
+        } 
       }
     }
   }

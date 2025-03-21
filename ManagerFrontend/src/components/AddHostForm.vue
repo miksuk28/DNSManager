@@ -21,7 +21,7 @@
 
         <v-select v-model="newHost.dhcpScope" label="DHCP Scope" :items="this.dhcpScopes"></v-select>
 
-        <v-btn @click="this.createHost()" class="mt-2 bg-blue" type="submit" block>Submit</v-btn>
+        <v-btn @click="this.createHost()" class="mt-2 bg-blue" type="submit" block>Add Host</v-btn>
       </v-form>
     </v-sheet>
   </v-card-text>
@@ -33,13 +33,13 @@
 
   export default {
     components: { ErrorDialog },
-    props: [],
+    emits: ["hostCreated"],
+    props: ["domains"],
     data() {
       return {
         newHost: {
           useNextAvailableAddress: true
         },
-        domains: [],
         dhcpScopes: [],
         error: {}
       }
@@ -47,12 +47,6 @@
     methods: {
       reduceObjectToArray(obj, key) {
         return Object.values(obj).map(item => item[key]);
-      },
-      async getDomains() {
-        const response = await fetch("/api/domains/list")
-        this.domains = await response.json()
-
-        this.domains = this.reduceObjectToArray(this.domains, 'domainName')
       },
       async getDhcpScopes() {
         const response = await fetch("/api/dhcpscopes/list")
@@ -77,7 +71,7 @@
             managedDhcp:  true,
             ipAddress:    this.newHost.useNextAvailableAddress ? null : this.newHost.ipAddress,
             macAddress:   this.newHost.macAddress,
-            dhcpScope:    this.dhcpScope
+            dhcpScope:    this.newHost.dhcpScope
           })
         }
 
@@ -98,7 +92,6 @@
     },
     mounted() {
       this.getDhcpScopes()
-      this.getDomains()
     },
     computed: {
       fullNewDomain() {

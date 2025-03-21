@@ -4,7 +4,7 @@
       <v-card-text>
         <p>Manager returned the following exception with the code {{ error.status }}</p>
       </v-card-text>
-
+      
       <v-card-text>
         <code>{{ error.exception }}: {{ error.response }}</code>
       </v-card-text>
