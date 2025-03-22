@@ -53,11 +53,12 @@
         </v-tabs-window-item>
         
         <v-tabs-window-item value="domains">
+          <YesNoModal @close="this.showDeleteDomainModal = false" :dialog="this.showDeleteDomainModal" />
           <v-data-table hide-default-header :items="this.domains" :headers="this.domainTableHeaders" >
             
             <template v-slot:item.actions="{ item }">
               <div class="d-flex ga-2 justify-end">
-                <v-icon color="medium-emphasis" icon="mdi-delete" size="small"></v-icon>
+                <v-icon @click="this.showDeleteDomainModal = true" color="medium-emphasis" icon="mdi-delete" size="small"></v-icon>
               </div>
             </template>
             
@@ -106,9 +107,16 @@
   import AddServiceForm from '@/components/AddServiceForm.vue';
   import HostDetails from '@/components/HostDetails.vue';
   import AddDomainForm from '@/components/AddDomainForm.vue';
+  import YesNoModal from '@/components/YesNoModal.vue';
 
   export default {
-    components: { AddHostForm, AddServiceForm, HostDetails, AddDomainForm },
+    components: {
+      AddHostForm,
+      AddServiceForm,
+      HostDetails,
+      AddDomainForm,
+      YesNoModal,
+    },
     data() {
       return {
         tab: null,
@@ -121,6 +129,7 @@
         },
         detailedHost: {},
         detailedHostServices: [],
+        showDeleteDomainModal: true,
 
         hostTableHeaders: [
           { title: "Hostname",    value: "hostname"},
