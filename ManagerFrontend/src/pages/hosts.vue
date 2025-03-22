@@ -1,4 +1,10 @@
 <template>
+  <ErrorDialog 
+    :error="this.error"
+    v-model="this.error.showDialog"
+    @close="this.error.showDialog = false"
+  />
+
   <v-main class="d-flex flex-row">
     <v-tabs v-model="this.tab" direction="vertical">
       <v-tab prepend-icon="mdi-server"  text="Hosts"      value="hostList"></v-tab>
@@ -53,12 +59,26 @@
         </v-tabs-window-item>
         
         <v-tabs-window-item value="domains">
-          <YesNoModal @close="this.showDeleteDomainModal = false" :dialog="this.showDeleteDomainModal" />
+          <!--Domain Deletion popup-->
+          <v-dialog v-model="this.showDeleteDomainModal" width="auto">
+            <v-card
+              max-width="400"
+              prepend-icon="mdi-delete"
+              text="Are you sure you want to delete this domain?"
+              title="Confirm Domain Deletion"
+            >
+              <v-card-actions>
+                <v-btn @click="this.showDeleteDomainModal=false">Cancel</v-btn>
+                <v-btn @click="this.showDeleteDomainModal=false; this.deleteDomain()" >Confirm</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
           <v-data-table hide-default-header :items="this.domains" :headers="this.domainTableHeaders" >
             
             <template v-slot:item.actions="{ item }">
               <div class="d-flex ga-2 justify-end">
-                <v-icon @click="this.showDeleteDomainModal = true" color="medium-emphasis" icon="mdi-delete" size="small"></v-icon>
+                <v-icon @click="this.askDomainDelete(item.domainId)" color="medium-emphasis" icon="mdi-delete" size="small"></v-icon>
               </div>
             </template>
             
@@ -108,6 +128,7 @@
   import HostDetails from '@/components/HostDetails.vue';
   import AddDomainForm from '@/components/AddDomainForm.vue';
   import YesNoModal from '@/components/YesNoModal.vue';
+  import ErrorDialog from '@/components/ErrorDialog.vue';
 
   export default {
     components: {
@@ -116,9 +137,13 @@
       HostDetails,
       AddDomainForm,
       YesNoModal,
+      ErrorDialog,
     },
     data() {
       return {
+        error: {
+          showDialog: false
+        },
         tab: null,
         hosts: [],
         services: [],
@@ -129,7 +154,7 @@
         },
         detailedHost: {},
         detailedHostServices: [],
-        showDeleteDomainModal: true,
+        showDeleteDomainModal: false,
 
         hostTableHeaders: [
           { title: "Hostname",    value: "hostname"},
@@ -151,6 +176,12 @@
     methods: {
       reduceObjectToArray(obj, key) {
         return Object.values(obj).map(item => item[key]);
+      },
+      createErrorDialog(error, exception, status) {
+        this.error.response = error
+        this.error.exception = exception
+        this.error.status = status
+        this.error.showDialog = true
       },
       async getHosts() {
         const response = await fetch("/api/hosts/list")
@@ -176,6 +207,29 @@
       async getServicesForHost(hostId) {
         const response = await fetch(`/api/services/list?hostId=${hostId}`)
         this.detailedHostServices = await response.json()
+      },
+      askDomainDelete(domainId) {
+        this.showDeleteDomainModal = true
+        this.domainToDelete = domainId
+      },
+      deleteDomain() {
+        const requestOptions = {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" }
+        }
+
+        fetch(`/api/domains/${this.domainToDelete}`, requestOptions)
+          .then(async response => {
+            const data = await response.json()
+
+            if (!response.ok) {
+              console.log("Error in domain deletion")
+              this.createErrorDialog(data.error, data.exception, data.status)
+            } else {
+              console.log("OK - Host deleted")
+              this.getDomains()
+            }
+          })
       }
     },
     mounted() {
