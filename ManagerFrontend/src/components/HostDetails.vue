@@ -1,4 +1,6 @@
 <template>
+  <YesNoModal />
+
   <v-container>
     <h1>{{ host.hostname }}</h1>
   </v-container>
@@ -72,7 +74,10 @@
 </template>
 
 <script>
+  import YesNoModal from './YesNoModal.vue';
+
   export default {
+    components: { YesNoModal },
     props: ["host", "services"],
     data() {
       return {
