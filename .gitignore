@@ -16,3 +16,4 @@ new_frontend/
 *.conf
 *config.py
 !manager.example.conf
+dump.sql

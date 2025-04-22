@@ -1,6 +1,6 @@
 CREATE TABLE hosts (
     hostId              INTEGER     PRIMARY KEY AUTOINCREMENT,
-    hostname            TEXT        NOT NULL UNIQUE,
+    hostname            TEXT        NOT NULL,
     domainId            INTEGER     NOT NULL,
     ipAddress           TEXT(15)    NOT NULL UNIQUE,
     ipAddressInt        INTEGER     NOT NULL,
@@ -8,6 +8,7 @@ CREATE TABLE hosts (
     dhcpScopeId         INTEGER,
     macAddress          TEXT(17)    UNIQUE,
 
+    UNIQUE(hostname, domainId)
     FOREIGN KEY (domainId) REFERENCES domains (domainId) ON DELETE RESTRICT,
     FOREIGN KEY (dhcpScopeId) REFERENCES dhcpScopes (dhcpScopeId) ON DELETE RESTRICT
 );
