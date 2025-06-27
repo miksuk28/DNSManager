@@ -227,8 +227,8 @@ class Manager(DatabaseConnection):
             scope = cur.fetchone()
 
             addr =     self._ipv4_str_to_int(address)
-            min_addr = self._ipv4_str_to_int(scope["dhcpStartAddress"])
-            max_addr = self._ipv4_str_to_int(scope["dhcpEndAddress"])
+            min_addr = self._ipv4_str_to_int(scope["dhcpstartaddress"])
+            max_addr = self._ipv4_str_to_int(scope["dhcpendaddress"])
 
             if addr >= min_addr and addr <= max_addr:
                 return
@@ -317,12 +317,12 @@ class Manager(DatabaseConnection):
             for ip in ips:
                 int_ips.append(ip["ipAddressInt"])
 
-            start_addr = self._ipv4_str_to_int(dhcp_scope["dhcpStartAddress"])
-            end_addr =   self._ipv4_str_to_int(dhcp_scope["dhcpEndAddress"])
+            start_addr = self._ipv4_str_to_int(dhcp_scope["dhcpstartaddress"])
+            end_addr =   self._ipv4_str_to_int(dhcp_scope["dhcpendaddress"])
 
             for i in range(start_addr, end_addr+1):
                 if start_addr > end_addr:
-                    raise ManagerException("error", f"Dhcp Scope {dhcp_scope['dhcpScopeName']} is out of addresses", code=409)
+                    raise ManagerException("error", f"Dhcp Scope {dhcp_scope['dhcpscopename']} is out of addresses", code=409)
 
                 if i not in int_ips:
                     print(f"FOUND ADDRESS NOT IN USE: {i} - {ipaddress.IPv4Address(i)}")

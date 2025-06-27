@@ -153,6 +153,8 @@ def list_dhcp_scopes():
 #### FLASK HANDLERS ####
 @app.errorhandler(Exception)
 def exception_handler(error):
+    #if config.getboolean("MANAGER", "USE_DEBUG_SERVER"):
+    #    raise error
 
     message = str(error)
     exception_type = type(error).__name__
