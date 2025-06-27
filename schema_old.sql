@@ -1,12 +1,12 @@
 CREATE TABLE hosts (
-    hostId              SERIAL      PRIMARY KEY,
+    hostId              INTEGER     PRIMARY KEY AUTOINCREMENT,
     hostname            TEXT        NOT NULL,
     domainId            INTEGER     NOT NULL,
-    ipAddress           INET        NOT NULL UNIQUE,
-    ipAddressInt        INTEGER,
+    ipAddress           TEXT(15)    NOT NULL UNIQUE,
+    ipAddressInt        INTEGER     NOT NULL,
     managedDhcp         BOOLEAN     NOT NULL,
     dhcpScopeId         INTEGER,
-    macAddress          MACADDR     UNIQUE,
+    macAddress          TEXT(17)    UNIQUE,
 
     UNIQUE(hostname, domainId)
     FOREIGN KEY (domainId) REFERENCES domains (domainId) ON DELETE RESTRICT,
@@ -15,22 +15,22 @@ CREATE TABLE hosts (
 
 
 CREATE TABLE domains (
-    domainId            SERIAL      PRIMARY KEY,
-    domainName          TEXT        NOT NULL UNIQUE
+    domainId            INTEGER PRIMARY KEY AUTOINCREMENT,
+    domainName          TEXT NOT NULL UNIQUE
 );
 
 
 CREATE TABLE dhcpScopes (
-    dhcpScopeId         SERIAL      PRIMARY KEY,
+    dhcpScopeId         INTEGER     PRIMARY KEY AUTOINCREMENT,
     dhcpScopeName       TEXT        NOT NULL UNIQUE,
-    dhcpStartAddress    INET        NOT NULL UNIQUE,
-    dhcpEndAddress      INET        NOT NULL UNIQUE,
+    dhcpStartAddress    TEXT(15)    NOT NULL UNIQUE,
+    dhcpEndAddress      TEXT(15)    NOT NULL UNIQUE,
     dhcpNetmask         INTEGER     NOT NULL
 );
 
 
 CREATE TABLE services (
-    serviceId           SERIAL      PRIMARY KEY,
+    serviceId           INTEGER     PRIMARY KEY AUTOINCREMENT,
     targetHostId        INTEGER     NOT NULL,
     serviceName         TEXT        NOT NULL,
     domainId            INTEGER     NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE services (
 
 
 CREATE TABLE technitiumServers (
-    serverId            SERIAL      PRIMARY KEY,
+    serverId            INTEGER     PRIMARY KEY AUTOINCREMENT,
     serverHostname      TEXT        NOT NULL UNIQUE,
     serverPort          INTEGER,
     useHttps            BOOLEAN     NOT NULL,
