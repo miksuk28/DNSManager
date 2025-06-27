@@ -1,4 +1,5 @@
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictRow, DictCursor
 import configparser
 from contextlib import contextmanager
 from uuid import uuid4
@@ -8,11 +9,14 @@ config.read("manager.conf")
 
 class DatabaseConnection:
     def __init__(self):
-        self._db_file = config["DATABASE"]["DB_PATH"]
-        self._conn =    sqlite3.connect(self._db_file, check_same_thread=False)
+        #self._db_file = config["DATABASE"]["DB_PATH"]
+        #self._conn =    sqlite3.connect(self._db_file, check_same_thread=False)
+        self._conn = psycopg2.connect(
+            config["DATABASE"]["POSTGRES_URI"]
+        )
         # enable primary key constraint, as the default in SQLite is OFF
-        self._conn.execute("PRAGMA foreign_keys=ON")
-        self._conn.row_factory = sqlite3.Row
+        #self._conn.execute("PRAGMA foreign_keys=ON")
+        #self._conn.row_factory = sqlite3.Row
 
 
     def genid(self):
@@ -21,7 +25,7 @@ class DatabaseConnection:
 
     @contextmanager
     def cur(self, commit=True):
-        _cur = self._conn.cursor()
+        _cur = self._conn.cursor(cursor_factory=DictCursor)
         try:
             yield _cur
             if commit:

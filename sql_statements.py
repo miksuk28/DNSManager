@@ -1,75 +1,91 @@
-GET_DOMAIN_BY_ID="SELECT domainName FROM domains WHERE domainId=?"
-GET_DOMAIN_ID="SELECT domainId FROM domains WHERE domainName=?"
-ADD_DOMAIN="INSERT INTO domains (domainName) VALUES (?)"
-GET_DOMAINS="SELECT domainId, domainName FROM domains"
-DELETE_DOMAIN="DELETE FROM domains WHERE domainId=?"
+GET_DOMAIN_BY_ID="SELECT domainName FROM domains WHERE domainId=%s"
+GET_DOMAIN_ID="SELECT domainId FROM domains WHERE domainName=%s"
+ADD_DOMAIN="INSERT INTO domains (domainName) VALUES (%s)"
+GET_DOMAINS='SELECT domainId AS "domainId", domainName AS "domainName" FROM domains'
+DELETE_DOMAIN="DELETE FROM domains WHERE domainId=%s"
 ADD_HOST='''INSERT INTO hosts (hostname, domainId, ipAddress, ipAddressInt, managedDhcp, dhcpScopeId, macAddress)
-            VALUES (:hostname, :domainId, :ipAddress, :ipAddressInt, :managedDhcp, :dhcpScopeId, :macAddress)'''
-GET_DHCP_SCOPE_ID="SELECT dhcpScopeId FROM dhcpScopes WHERE dhcpScopeName=?"
+            VALUES (%(hostname)s, %(domainId)s, %(ipAddress)s, %(ipAddressInt)s, %(managedDhcp)s, %(dhcpScopeId)s, %(macAddress)s)'''
+GET_DHCP_SCOPE_ID="SELECT dhcpScopeId FROM dhcpScopes WHERE dhcpScopeName=%s"
 GET_DHCP_SCOPE='''
-SELECT *
+SELECT
+    dhcpScopeId,
+    dhcpScopeName,
+    dhcpStartAddress,
+    dhcpStartAddress,
+    dhcpEndAddress,
+    dhcpNetmask
 FROM dhcpScopes
-WHERE dhcpScopeId=?
+WHERE dhcpScopeId=%s
 '''
 GET_DHCP_SCOPE_BY_NAME='''
 SELECT *
 FROM dhcpScopes
-WHERE dhcpScopeName=?
+WHERE dhcpScopeName=%s
 '''
 ADD_DHCP_SCOPE='''
 INSERT INTO dhcpScopes (dhcpScopeName, dhcpStartAddress, dhcpEndAddress, dhcpNetmask)
-VALUES (:dhcpScopeName, :dhcpStartAddress, :dhcpEndAddress, :dhcpNetmask)
+VALUES (%(dhcpScopeName)s, %(dhcpStartAddress)s, %(dhcpEndAddress)s, %(dhcpNetmask)s)
 '''
 ADD_SERVICE='''INSERT INTO services (targetHostId, serviceName, domainId, description)
-               VALUES (:targetHostId, :serviceName, :domainId, :description)'''
+               VALUES (%(targetHostId)s, %(serviceName)s, %(domainId)s, %(description)s)'''
 GET_HOST_DOMAIN='''SELECT hostname || '.' || domainName
                    FROM hosts h LEFT JOIN domains d ON h.domainId=d.domainId
-                   WHERE h.hostId=?'''
+                   WHERE h.hostId=%s'''
 GET_SERVICE_DOMAIN='''SELECT serviceName || '.' || domainName
                       FROM services s LEFT JOIN domains d ON s.domainId=d.domainId
-                      WHERE s.serviceId=?'''
-REMOVE_SERVICE="DELETE FROM services WHERE serviceId=?"
-REMOVE_HOST="DELETE FROM hosts WHERE hostId=?"
-GET_HOST='''SELECT h.hostId, hostname, d.domainName, d.domainId, ipAddress, UPPER(macAddress) as macAddress, managedDhcp, h.dhcpScopeId, s.dhcpScopeName FROM hosts h
+                      WHERE s.serviceId=%s'''
+REMOVE_SERVICE="DELETE FROM services WHERE serviceId=%s"
+REMOVE_HOST="DELETE FROM hosts WHERE hostId=%s"
+GET_HOST='''SELECT h.hostId, hostname, d.domainName, d.domainId, ipAddress, macAddress, managedDhcp, h.dhcpScopeId, s.dhcpScopeName FROM hosts h
             LEFT JOIN domains d ON h.domainId=d.domainId
             LEFT JOIN dhcpScopes s ON h.dhcpScopeId=s.dhcpScopeId
-            WHERE h.hostId=?'''
-GET_HOSTS='''SELECT h.hostname || '.' || d.domainName AS hostname, h.hostId, hostname, d.domainName, d.domainId, ipAddress, UPPER(macAddress) AS macAddress, managedDhcp, h.dhcpScopeId, s.dhcpScopeName FROM hosts h
+            WHERE h.hostId=%s'''
+GET_HOSTS='''SELECT
+                h.hostname || '.' || d.domainName AS hostname,
+                h.hostId AS "hostId",
+                d.domainName AS "domainName",
+                d.domainId AS "domainId",
+                ipAddress AS "ipAddress",
+                macAddress AS "macAddress",
+                managedDhcp AS "managedDhcp",
+                h.dhcpScopeId AS "dhcpScopeId",
+                s.dhcpScopeName AS "dhcpScopeName"
+            FROM hosts h
             LEFT JOIN domains d ON h.domainId=d.domainId
             LEFT JOIN dhcpScopes s ON h.dhcpScopeId=s.dhcpScopeId
-            ORDER BY hostname ASC'''
+            ORDER BY h.hostname ASC'''
 GET_HOST_INFO='''
 SELECT
-    h.hostId,
+    h.hostId AS "hostId",
     h.hostname || '.' || d.domainName AS hostname,
-    d.domainName,
-    d.domainId,
-    h.ipAddress,
-    UPPER(h.macAddress) as macAddress,
-    dc.dhcpScopeId,
-    dc.dhcpScopeName,
-    dc.dhcpNetmask
+    d.domainName AS "domainName",
+    d.domainId AS "domainId",
+    h.ipAddress AS "ipAddress",
+    macAddress AS "macAddress",
+    dc.dhcpScopeId AS "dhcpScopeId",
+    dc.dhcpScopeName AS "dhcpScopeName",
+    dc.dhcpNetmask AS "dhcpNetmask"
 FROM hosts h
 LEFT JOIN domains d ON h.domainId=d.domainId
 LEFT JOIN dhcpScopes dc ON h.dhcpScopeId=dc.dhcpScopeId
-WHERE h.hostId=?
+WHERE h.hostId=%s
 '''
 GET_USED_DHCP_ADDRESSES='''
 SELECT
     ipAddress,
     ipAddressInt
 FROM hosts
-WHERE dhcpScopeId=?
+WHERE dhcpScopeId=%s
 ORDER BY ipAddressInt ASC
 '''
 GET_SERVICES='''
 SELECT
-	s.serviceId,
-	s.serviceName || '.' || d.domainName AS domainName,
-	s.targetHostId,
+	s.serviceId AS "serviceId",
+	s.serviceName || '.' || d.domainName AS "domainName",
+	s.targetHostId AS "targetHostId",
 	h.hostname || '.' || (SELECT domainName FROM domains WHERE domainID=h.domainId) AS target,
-	d.domainName AS baseDomain,
-	d.domainId,
+	d.domainName AS "baseDomain",
+	d.domainId AS "domainId",
     s.description
 FROM services s
 LEFT JOIN domains d ON s.domainId=d.domainId
@@ -78,16 +94,16 @@ ORDER BY domainName ASC
 '''
 GET_SERVICES_FOR_HOST='''
 SELECT
-	s.serviceId,
-	s.serviceName || '.' || d.domainName AS domainName,
-	s.targetHostId,
+	s.serviceId AS "serviceId",
+	s.serviceName || '.' || d.domainName AS "domainName",
+	s.targetHostId AS "targetHostId",
 	h.hostname || '.' || (SELECT domainName FROM domains WHERE domainID=h.domainId) AS target,
-	d.domainName AS baseDomain,
-	d.domainId,
+	d.domainName AS "baseDomain",
+	d.domainId AS "domainId",
     s.description
 FROM services s
 LEFT JOIN domains d ON s.domainId=d.domainId
 LEFT JOIN hosts h 	ON s.targetHostId=h.hostId
-WHERE s.targetHostId=?
+WHERE s.targetHostId=%s
 ORDER BY domainName ASC
 '''
