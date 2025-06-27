@@ -60,15 +60,6 @@ def upgrade() -> None:
             FOREIGN KEY (domainId)     REFERENCES domains (domainId) ON DELETE RESTRICT,
             FOREIGN KEY (targetHostId) REFERENCES hosts (hostId) ON DELETE RESTRICT
         );
-
-
-        CREATE TABLE technitiumServers (
-            serverId            SERIAL      PRIMARY KEY,
-            serverHostname      TEXT        NOT NULL UNIQUE,
-            serverPort          INTEGER,
-            useHttps            BOOLEAN     NOT NULL,
-            serverToken         TEXT        NOT NULL
-        );
         """
     ))
 
