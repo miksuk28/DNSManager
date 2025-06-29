@@ -315,7 +315,7 @@ class Manager(DatabaseConnection):
 
             int_ips = []
             for ip in ips:
-                int_ips.append(ip["ipAddressInt"])
+                int_ips.append(ip["ipaddressint"])
 
             start_addr = self._ipv4_str_to_int(dhcp_scope["dhcpstartaddress"])
             end_addr =   self._ipv4_str_to_int(dhcp_scope["dhcpendaddress"])
