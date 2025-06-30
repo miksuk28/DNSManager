@@ -55,7 +55,8 @@ def create_host():
         address=        request_body.get("ipAddress"),
         mac_address=    request_body.get("macAddress"),
         dhcp_scope=     request_body["dhcpScope"],
-        overwrite=      request_body.get("overwrite")
+        overwrite=      request_body.get("overwrite"),
+        create_alias=   request_body.get("createAlias")
     )
 
     return jsonify({"status": "ok", "message": "Host created"}), 201

@@ -3,8 +3,11 @@ GET_DOMAIN_ID="SELECT domainId FROM domains WHERE domainName=%s"
 ADD_DOMAIN="INSERT INTO domains (domainName) VALUES (%s)"
 GET_DOMAINS='SELECT domainId AS "domainId", domainName AS "domainName" FROM domains'
 DELETE_DOMAIN="DELETE FROM domains WHERE domainId=%s"
-ADD_HOST='''INSERT INTO hosts (hostname, domainId, ipAddress, ipAddressInt, managedDhcp, dhcpScopeId, macAddress)
-            VALUES (%(hostname)s, %(domainId)s, %(ipAddress)s, %(ipAddressInt)s, %(managedDhcp)s, %(dhcpScopeId)s, %(macAddress)s)'''
+ADD_HOST='''
+INSERT INTO hosts (hostname, domainId, ipAddress, ipAddressInt, managedDhcp, dhcpScopeId, macAddress)
+VALUES (%(hostname)s, %(domainId)s, %(ipAddress)s, %(ipAddressInt)s, %(managedDhcp)s, %(dhcpScopeId)s, %(macAddress)s)
+RETURNING hostId
+'''
 GET_DHCP_SCOPE_ID="SELECT dhcpScopeId FROM dhcpScopes WHERE dhcpScopeName=%s"
 GET_DHCP_SCOPE='''
 SELECT
@@ -106,4 +109,12 @@ LEFT JOIN domains d ON s.domainId=d.domainId
 LEFT JOIN hosts h 	ON s.targetHostId=h.hostId
 WHERE s.targetHostId=%s
 ORDER BY domainName ASC
+'''
+ADD_HOST_ALIAS='''
+INSERT INTO opnsense_aliases (alias_id, is_host_alias, alias_name, alias_display_name)
+VALUES (%(alias_id)s, TRUE, %(alias_name)s, %(alias_display_name)s)
+'''
+SET_HOST_ALIAS='''
+UPDATE hosts
+SET host_alias_id = %(host_alias_id)s
 '''

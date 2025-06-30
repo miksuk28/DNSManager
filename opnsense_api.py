@@ -1,6 +1,7 @@
 import requests
-from requests.auth import HTTPBasicAuth
 import configparser
+from requests.auth import HTTPBasicAuth
+
 
 config = configparser.ConfigParser()
 config.read("manager.conf")
@@ -16,6 +17,7 @@ class OPNsenseException(Exception):
 
 class OPNsenseAPI:
     def __init__(self):
+        # initiate db connection
         self.URL =      config["FIREWALL"]["OPNSENSE_URL"]
         self._KEY =     config["FIREWALL"]["OPNSENSE_API_KEY"]
         self._SECRET =  config["FIREWALL"]["OPNSENSE_API_SECRET"]
@@ -35,8 +37,7 @@ class OPNsenseAPI:
             auth=self.auth
         )
         data = r.json()
-        '''or data.get("result") == "failed"'''
-        if r.status_code > 299:
+        if r.status_code > 299 or data.get("result") == "failed":
             raise OPNsenseException(
                 message=data.get("message", (data.get("result") or data.get("errorMessage"))),
                 code=r.status_code
@@ -56,6 +57,7 @@ class OPNsenseAPI:
 
 
     def create_alias(self, alias, target):
+        alias = self._hostname_to_alias_compat(alias)
         r = self._request(
             "/firewall/alias/addItem",
             method="POST",
@@ -83,6 +85,7 @@ class OPNsenseAPI:
 
 
     def get_alias_id(self, alias):
+        alias = self._hostname_to_alias_compat(alias)
         data = self._request(f"/firewall/alias/getAliasUUID/{alias}")
 
         if not data:

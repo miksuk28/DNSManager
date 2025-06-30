@@ -6,6 +6,7 @@ import os
 import configparser
 from sqlite3 import IntegrityError
 from db_manager import DatabaseConnection
+from opnsense_api import OPNsenseAPI, OPNsenseException
 
 config = configparser.ConfigParser()
 config.read("manager.conf")
@@ -35,6 +36,7 @@ class Manager(DatabaseConnection):
         self.URL = f"{schema}://{address}:{port}/api"
         self.comment = config.get("MANAGER", "DEFAULT_COMMENT", fallback="Created by Manager")
         self.token = token
+        self._fw = OPNsenseAPI()
 
     
     def _request(self, path, params={}, method="GET"):
@@ -247,7 +249,7 @@ class Manager(DatabaseConnection):
             })
 
 
-    def add_host(self, hostname, domain, managed_dhcp, address=None, mac_address=None, dhcp_scope=None, overwrite=False, comments=""):     
+    def add_host(self, hostname, domain, managed_dhcp, address=None, mac_address=None, dhcp_scope=None, overwrite=False, create_alias=False, comments=""):     
         domain_id = self._get_domain_id(domain)
         dhcp_scope_id = None
         if dhcp_scope is not None:
@@ -270,6 +272,25 @@ class Manager(DatabaseConnection):
                 "dhcpScopeId":  dhcp_scope_id,
                 "macAddress":   mac_address
             })
+            # get newly created hostId
+            host_id = cur.fetchone().get("hostid")
+            
+            if create_alias:
+                # create alias
+                alias_id =      self._fw.create_alias(hostname, f"{hostname}.{domain}")
+                alias_name =    self._fw._hostname_to_alias_compat(hostname)
+                # add host to db
+                cur.execute(sql.ADD_HOST_ALIAS, {
+                    "alias_id":             alias_id,
+                    "alias_name":           alias_name,
+                    "alias_display_name":   hostname
+                })
+                # set as main alias for host
+                cur.execute(sql.SET_HOST_ALIAS, {
+                    "host_alias_id":        alias_id
+                })
+                
+
             # Add DNS record
             r = self._request(
                 "/zones/records/add",
@@ -343,18 +364,18 @@ class Manager(DatabaseConnection):
             r = self._request(
                 "/zones/records/delete",
                 params={
-                    "domain":       f"{host['hostname']}.{host['domainName']}",
+                    "domain":       f"{host['hostname']}.{host['domainname']}",
                     "type":         "A",
-                    "ipAddress":    host["ipAddress"]
+                    "ipAddress":    host["ipaddress"]
                 }
             )
 
-            if host["managedDhcp"]:
+            if host["manageddhcp"]:
                 r = self._request(
                     "/dhcp/scopes/removeReservedLease",
                     params={
-                        "name":             host["dhcpScopeName"],
-                        "hardwareAddress":  host["macAddress"]
+                        "name":             host["dhcpscopename"],
+                        "hardwareAddress":  host["macaddress"]
                     }
                 )
 
