@@ -34,6 +34,11 @@
           </label>
 
           <label>
+            <input v-model="this.newHost.createAlias" name="createAlias" type="checkbox" role="switch" />
+            Create alias on FW
+          </label>
+
+          <label>
             <input v-model="this.newHost.isManaged" name="isManaged" type="checkbox" role="switch" />
             Use next available address in range
           </label>
@@ -61,6 +66,8 @@
         </fieldset>
       </form>
 
+      <!--<progress v-if="this.processingRequest" />-->
+      
       <footer>
         <button @click="resetNewHost()" class="secondary">Clear fields</button>
         <button @click="createHost()" :aria-busy="this.processingRequest" class="primary">Add</button>
@@ -86,7 +93,8 @@
         showErrorModal: false,
         processingRequest: false,
         newHost: {
-          isManaged: true
+          isManaged: true,
+          createAlias: true
         }
       }
     },
@@ -94,6 +102,11 @@
     methods: {
       closeAddHostModal() {
         this.$emit('closeModal')
+      },
+
+      setLoadingState(state) {
+        console.log(`Loading state: ${this.processingRequest}`)
+        this.processingRequest = state
       },
 
       async getDomains() {
@@ -108,7 +121,8 @@
       },
       resetNewHost() {
         this.newHost = {
-          isManaged: true
+          isManaged: true,
+          createAlias: true
         }
       },
 
@@ -124,7 +138,7 @@
       },
 
       createHost() {
-        this.processingRequest = true
+        this.setLoadingState(true)
 
         const requestOptions = {
           method: "POST",
@@ -135,7 +149,8 @@
             managedDhcp:    true,
             ipAddress:      this.newHost.isManaged ? null : this.newHost.ipAddress,
             macAddress:     this.newHost.macAddress,
-            dhcpScope:      this.newHost.dhcpScope
+            dhcpScope:      this.newHost.dhcpScope,
+            createAlias:    this.newHost.createAlias
           })
         }
 
@@ -152,8 +167,8 @@
               this.closeAddHostModal()
               this.resetNewHost()
             }
+            this.setLoadingState(false)
           })
-        this.processingRequest = false
       }
     },
 
