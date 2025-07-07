@@ -454,6 +454,28 @@ class Manager(DatabaseConnection):
         )
 
 
+    def get_alias_groups(self):
+        with self.cur(commit=False) as cur:
+            cur.execute(sql.GET_ALIAS_GROUPS)
+            aliases = self.rows_to_dict(cur.fetchall())
+
+            return aliases
+
+
+    def register_alias_group(self, alias_id, display_name):
+        alias = self._fw._get_alias_by_id(alias_id)
+
+        with self.cur(commit=True) as cur:
+            cur.execute(sql.REGISTER_ALIAS_GROUP, {
+                "alias_id":             alias_id,
+                "is_host_alias":        False,
+                "alias_name":           alias["name"],
+                "category_id":          alias.get("categories"),
+                "alias_description":    alias.get("description"),
+                "alias_display_name":   display_name
+            })
+
+
     def ping_host(self, host_id):
         count =     str(config.getint("MANAGER", "PING_COUNT", fallback=1))
         timeout =   str(config.getint("MANAGER", "PING_TIMEOUT", fallback=2))

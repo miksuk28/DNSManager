@@ -151,6 +151,28 @@ def list_dhcp_scopes():
     return jsonify(dhcp_scopes)
 
 
+@app.route("/aliasgroups/list", methods=["GET"])
+def list_alias_groups():
+    return jsonify(manager.get_alias_groups())
+
+
+@app.route("/aliasgroups/register", methods=["POST"])
+def register_alias_group():
+    request_body = request.get_json()
+
+    manager.register_alias_group(
+        alias_id=request_body["aliasId"],
+        display_name=request_body["displayName"]
+    )
+
+    return jsonify({
+        "status": "ok",
+        "message": f"Imported alias with id {request_body['aliasId']}"
+    }), 201
+
+
+
+
 #### FLASK HANDLERS ####
 @app.errorhandler(Exception)
 def exception_handler(error):

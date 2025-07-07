@@ -43,20 +43,22 @@ GET_HOST='''SELECT h.hostId, hostname, d.domainName, d.domainId, ipAddress, macA
             LEFT JOIN domains d ON h.domainId=d.domainId
             LEFT JOIN dhcpScopes s ON h.dhcpScopeId=s.dhcpScopeId
             WHERE h.hostId=%s'''
-GET_HOSTS='''SELECT
-                h.hostname || '.' || d.domainName AS hostname,
-                h.hostId AS "hostId",
-                d.domainName AS "domainName",
-                d.domainId AS "domainId",
-                ipAddress AS "ipAddress",
-                macAddress AS "macAddress",
-                managedDhcp AS "managedDhcp",
-                h.dhcpScopeId AS "dhcpScopeId",
-                s.dhcpScopeName AS "dhcpScopeName"
-            FROM hosts h
-            LEFT JOIN domains d ON h.domainId=d.domainId
-            LEFT JOIN dhcpScopes s ON h.dhcpScopeId=s.dhcpScopeId
-            ORDER BY h.hostname ASC'''
+GET_HOSTS='''
+SELECT
+    h.hostname || '.' || d.domainName AS hostname,
+    h.hostId AS "hostId",
+    d.domainName AS "domainName",
+    d.domainId AS "domainId",
+    ipAddress AS "ipAddress",
+    macAddress AS "macAddress",
+    managedDhcp AS "managedDhcp",
+    h.dhcpScopeId AS "dhcpScopeId",
+    s.dhcpScopeName AS "dhcpScopeName"
+FROM hosts h
+LEFT JOIN domains d ON h.domainId=d.domainId
+LEFT JOIN dhcpScopes s ON h.dhcpScopeId=s.dhcpScopeId
+ORDER BY h.hostname ASC
+'''
 GET_HOST_INFO='''
 SELECT
     h.hostId AS "hostId",
@@ -117,4 +119,18 @@ VALUES (%(alias_id)s, TRUE, %(alias_name)s, %(alias_display_name)s)
 SET_HOST_ALIAS='''
 UPDATE hosts
 SET host_alias_id = %(host_alias_id)s
+'''
+REGISTER_ALIAS_GROUP='''
+INSERT INTO opnsense_aliases (alias_id, is_host_alias, alias_name, category_id, alias_description, alias_display_name)
+VALUES (%(alias_id)s, %(is_host_alias)s, %(alias_name)s, %(category_id)s, %(alias_description)s, %(alias_display_name)s)
+'''
+GET_ALIAS_GROUPS='''
+SELECT
+    alias_id                AS "aliasId",
+    alias_name              AS "aliasName",
+    category_id             AS "categoryId",
+    alias_description       AS "aliasDescription",
+    alias_display_name      AS "aliasDisplayName"
+FROM opnsense_aliases
+WHERE is_host_alias = FALSE
 '''
