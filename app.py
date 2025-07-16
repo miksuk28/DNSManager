@@ -156,6 +156,11 @@ def list_alias_groups():
     return jsonify(manager.get_alias_groups())
 
 
+@app.route("/aliasgroups/listAvailable", methods=["GET"])
+def list_available_alias_groups():
+    return jsonify(manager.get_available_aliases())
+
+
 @app.route("/aliasgroups/register", methods=["POST"])
 def register_alias_group():
     request_body = request.get_json()

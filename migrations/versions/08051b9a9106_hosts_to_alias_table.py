@@ -51,7 +51,6 @@ def upgrade() -> None:
         EXECUTE FUNCTION set_pending_delete_on_host();
         """
     ))
-    pass
 
 
 def downgrade() -> None:
@@ -62,4 +61,3 @@ def downgrade() -> None:
         DROP TABLE    hosts_to_alias; 
         """
     ))
-    pass

@@ -121,8 +121,8 @@ UPDATE hosts
 SET host_alias_id = %(host_alias_id)s
 '''
 REGISTER_ALIAS_GROUP='''
-INSERT INTO opnsense_aliases (alias_id, is_host_alias, alias_name, category_id, alias_description, alias_display_name)
-VALUES (%(alias_id)s, %(is_host_alias)s, %(alias_name)s, %(category_id)s, %(alias_description)s, %(alias_display_name)s)
+INSERT INTO opnsense_aliases (alias_id, is_host_alias, alias_name, category_id, alias_description, alias_display_name, allowed_for_all_scopes)
+VALUES (%(alias_id)s, %(is_host_alias)s, %(alias_name)s, %(category_id)s, %(alias_description)s, %(alias_display_name)s, %(allowed_for_all_scopes)s)
 '''
 GET_ALIAS_GROUPS='''
 SELECT

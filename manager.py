@@ -462,17 +462,33 @@ class Manager(DatabaseConnection):
             return aliases
 
 
-    def register_alias_group(self, alias_id, display_name):
+    def get_available_aliases(self):
+        aliases = self._fw.list_aliases()
+
+        # Remove aliases starting with "_"
+        internal_aliases = []
+        for alias in aliases:
+            if alias.startswith("_"):
+                internal_aliases.append(alias)
+
+        for alias in internal_aliases:
+            del aliases[alias]
+
+        return aliases
+
+
+    def register_alias_group(self, alias_id, display_name, allowed_for_all_scopes=True):
         alias = self._fw._get_alias_by_id(alias_id)
 
         with self.cur(commit=True) as cur:
             cur.execute(sql.REGISTER_ALIAS_GROUP, {
-                "alias_id":             alias_id,
-                "is_host_alias":        False,
-                "alias_name":           alias["name"],
-                "category_id":          alias.get("categories"),
-                "alias_description":    alias.get("description"),
-                "alias_display_name":   display_name
+                "alias_id":                 alias_id,
+                "is_host_alias":            False,
+                "alias_name":               alias["name"],
+                "category_id":              alias.get("categories"),
+                "alias_description":        alias.get("description"),
+                "alias_display_name":       display_name,
+                "allowed_for_all_scopes":   allowed_for_all_scopes
             })
 
 
